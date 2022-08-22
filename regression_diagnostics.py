@@ -66,7 +66,7 @@ def regression_diagnostics(model, result, y, X, saveto):
     # create folder
     os.makedirs(saveto)
     # get step number
-    step = saveto.split("\\")[-1]
+    step = saveto.split("/")[-1]
 
 # ASSUMPTION 1 - INDEPENDENCE OF RESIDUALS
     # Durbin-Watson stat (no autocorrelation)
@@ -87,14 +87,15 @@ def regression_diagnostics(model, result, y, X, saveto):
     if len(X.columns) > 1:  # run code if there are multiple predictors
         # Debugged 30/09/2019 originally used just y in correlation function
         # y.iloc[:, 0] needed to call function between two series to avoid error
-        correlations = [scipy.stats.pearsonr(X[var], y.iloc[:, 0])
+        #correlations = [scipy.stats.pearsonr(X[var], y.iloc[:, 0])
+        correlations = [scipy.stats.pearsonr(X[var], y)
                         for var in X.columns]
         for ix, corr in enumerate(correlations):
             xName = 'IV_' + X.columns[ix] + '_pearson_'
             diagnostics[xName + 'r'] = corr[0]
             diagnostics[xName + 'p'] = corr[1]
     else:  # run code if only 1 predictor
-        correlations = scipy.stats.pearsonr(X, y)
+        correlations = scipy.stats.pearsonr(X[X.columns[0]], y)
 
     # search through dict for keys with pearson_p and assign yes to passed var
     # if all p's < 0.05
@@ -210,7 +211,7 @@ def regression_diagnostics(model, result, y, X, saveto):
         else:
             diagnostics['VIF_passed'] = 'No'
             # add predictor names to diagnostics
-            diagnostics['VIF_predictorsFailed'] = vif[vif > 5].to_string(
+            diagnostics['VIF_predictorsFailed'] = vif[vif['VIF'] > 5].to_string(
                     index=False, header=False)
 
     else:  # run code if only 1 predictor
@@ -324,12 +325,12 @@ def regression_diagnostics(model, result, y, X, saveto):
 
 # SAVE DIAGNOSTICS INFO AND SUMMARY OF DIAGNOSTIC TESTS
     # write out text file with summary of tests
-    summaryFile = saveto + '\\' + step + '_testSummary.txt'
+    summaryFile = saveto + '/' + step + '_testSummary.txt'
     with open(summaryFile, 'w') as f:
         for item in summaryTextList:
             f.write("%s\n" % item)
 
-    csvName = saveto + '\\' + step + '_diagnostic_results.csv'
+    csvName = saveto + '/' + step + '_diagnostic_results.csv'
     # saves a csv with 28 rows and two columns (long but easily readable)
     pd.Series(diagnostics).to_csv(csvName)
     # Alternative code
@@ -341,7 +342,7 @@ def regression_diagnostics(model, result, y, X, saveto):
 
     # save csv of pairwise correlations - only if there are multiple predictors
     if len(X.columns) > 1:
-        pairwiseCorrName = saveto + '\\' + step + '_pairwise_correlations.csv'
+        pairwiseCorrName = saveto + '/' + step + '_pairwise_correlations.csv'
         high_pairwise_corr.to_csv(pairwiseCorrName)
 
 # MAKE AND SAVE PLOTS
@@ -363,7 +364,7 @@ def regression_diagnostics(model, result, y, X, saveto):
     residsVsFittedVals_plot.axes[0].set_xlabel('Fitted values')
     residsVsFittedVals_plot.axes[0].set_ylabel('Studentised Residuals')
     # name + save plot
-    figName = saveto + '\\' + step + '_residualsVSfittedValuesPlot.png'
+    figName = saveto + '/' + step + '_residualsVSfittedValuesPlot.png'
     residsVsFittedVals_plot.savefig(figName)
     plt.clf()
 
@@ -372,7 +373,7 @@ def regression_diagnostics(model, result, y, X, saveto):
     qq_fig = sm.qqplot(model.resid, fit=True, line='45')
     qq_fig.axes[0].set_title('Normal QQ Plot of Residuals')
     # name + save plot
-    figName = saveto + '\\' + step + '_NormalQQPlot.png'
+    figName = saveto + '/' + step + '_NormalQQPlot.png'
     qq_fig.savefig(figName)
     plt.clf()
 
@@ -384,7 +385,7 @@ def regression_diagnostics(model, result, y, X, saveto):
     fig_influence = sm.graphics.influence_plot(model, ax=ax_influence,
                                                criterion="cooks")
     # name + save plot
-    figName = saveto + '\\' + step + '_InfluencePlot_CooksD.png'
+    figName = saveto + '/' + step + '_InfluencePlot_CooksD.png'
     fig_influence.savefig(figName)
     plt.clf()
 
@@ -396,7 +397,7 @@ def regression_diagnostics(model, result, y, X, saveto):
     outlier_fig.axes.set_title('Boxplot of Standardised Residuals')
     residBoxplot = outlier_fig.get_figure()  # get figure to save
     # name + save plot
-    figName = saveto + '\\' + step + '_ResidualsBoxplot.png'
+    figName = saveto + '/' + step + '_ResidualsBoxplot.png'
     residBoxplot.savefig(figName)
     plt.clf()
 
@@ -407,7 +408,7 @@ def regression_diagnostics(model, result, y, X, saveto):
     fig_partRegress = sm.graphics.plot_partregress_grid(model,
                                                         fig=fig_partRegress)
     # name + save plot
-    figName = saveto + '\\' + step + '_PartialRegressionPlots.png'
+    figName = saveto + '/' + step + '_PartialRegressionPlots.png'
     fig_partRegress.savefig(figName)
     plt.clf()
 

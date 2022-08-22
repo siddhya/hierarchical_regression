@@ -9,6 +9,7 @@ import pandas as pd
 import statsmodels.api as sm
 import scipy.stats
 import numpy as np
+import hierarchical_regression
 
 #import os
 #curr_dir = os.getcwd()
@@ -20,35 +21,33 @@ import numpy as np
 # https://courses.edx.org/c4x/MITx/15.071x_2/asset/NBA_train.csv
 
 # read in data
-nba = pd.read_csv(r'C:\Users\boyler1\Documents\PhD\Miscellaneous\datasets\NBA_train.csv')
+nba = pd.read_csv('./hierarchical_regression/example_dataset/NBA_train.csv')
 
 # prep data
 #X = [nba['PTS'], nba[['PTS', 'ORB']], nba[['PTS', 'ORB', 'DRB']]]
 nba['interaction'] = nba['PTS'] * nba['ORB']
-X = [nba['PTS'], nba[['PTS', 'ORB']], nba[['PTS', 'ORB', 'interaction']]]
+X = [nba[['PTS']], nba[['PTS', 'ORB']], nba[['PTS', 'ORB', 'interaction']]]
 y = nba['W']
 names = [['points'], ['points', 'offensive_rebounds'], 
          ['points', 'offensive_rebounds', 'interaction']]
 
-results, models = hierarchical_regression(y, X, names, 
-                                          r'B:\cognitive_reserve\prelim_analysis_280919')
+results, models = hierarchical_regression.hierarchical_regression(y, X, names, 'hierarchical_regression')
 
-runfile('C:/Users/boyler1/Documents/PhD/Code/cognitive_reserve/regression_diagnostics.py',
-        wdir='C:/Users/boyler1/Documents/PhD/Code/cognitive_reserve')
-runfile('C:/Users/boyler1/Documents/PhD/Code/cognitive_reserve/hierarchical_regression.py',
-        wdir='C:/Users/boyler1/Documents/PhD/Code/cognitive_reserve')
+#runfile('regression_diagnostics.py', wdir='.')
+#runfile('hierarchical_regression.py', wdir='.')
 
 model=models[1][1]
 result = results.iloc[1]
-model.summary()
+print(model.summary())
+print(results)
 
-X = X[1]
+#X = X[1]
 
-saveto = r'C:\Users\boyler1\Documents\PhD\CognitiveReserve\assumptionTest'
+#saveto = r'C:\Users\boyler1\Documents\PhD\CognitiveReserve\assumptionTest'
 
-saveFolder = r'C:\Users\boyler1\Documents\PhD\CognitiveReserve\assumptionTest'
+#saveFolder = r'C:\Users\boyler1\Documents\PhD\CognitiveReserve\assumptionTest'
 
 
-X = predictors
-y = cogFunction
-saveFolder = proxyDir
+#X = predictors
+#y = cogFunction
+#saveFolder = proxyDir

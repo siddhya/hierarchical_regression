@@ -5,6 +5,13 @@ Created on Wed Aug 21 14:05:37 2019
 @author: Rory Boyle rorytboyle@gmail.com github.com/rorytboyle
 """
 
+import pandas as pd
+import statsmodels.api as sm
+import scipy.stats
+import numpy as np
+from sklearn.metrics import mean_absolute_error
+import regression_diagnostics
+
 def linear_reg(y, X, names):
     """
     Runs a linear regression using statsmodels, extracts results from the
@@ -149,12 +156,12 @@ def hierarchical_regression(y, X, names, saveFolder):
         currentStepResults, currentStepModel = linear_reg(y, currentX, names[ix])
         currentStepResults.insert(0, ix+1)  # add step number to results
 
-        saveto = saveFolder + r'\step' + str(ix+1)
+        saveto = saveFolder + '/step' + str(ix+1)
         modelSave = saveto + "model.pickle" # THIS LINE HASNT BEEN TESTED
         currentStepModel.save(modelSave) # THIS LINE HASNT BEEN TESTED
         
         # run regression diagnostics
-        assumptionsToCheck = regression_diagnostics(
+        assumptionsToCheck = regression_diagnostics.regression_diagnostics(
                 currentStepModel, currentStepResults, y, currentX, saveto)
         currentStepResults.append(assumptionsToCheck)
         
